@@ -177,17 +177,31 @@ function plugin_memarkdown_post_show_form($params)
 /**
  * Hook called before adding knowledge base item
  */
-function plugin_memarkdown_pre_item_add($input)
+function plugin_memarkdown_pre_item_add($item)
 {
-    return plugin_memarkdown_convert_content($input);
+    // In GLPI 11, the hook receives the object, not the input array directly
+    if (is_object($item) && method_exists($item, 'input') && property_exists($item, 'input')) {
+        $item->input = plugin_memarkdown_convert_content($item->input);
+    } else {
+        // Fallback for GLPI 10.x where it might still pass the input array
+        return plugin_memarkdown_convert_content($item);
+    }
+    return $item;
 }
 
 /**
  * Hook called before updating knowledge base item
  */
-function plugin_memarkdown_pre_item_update($input)
+function plugin_memarkdown_pre_item_update($item)
 {
-    return plugin_memarkdown_convert_content($input);
+    // In GLPI 11, the hook receives the object, not the input array directly
+    if (is_object($item) && method_exists($item, 'input') && property_exists($item, 'input')) {
+        $item->input = plugin_memarkdown_convert_content($item->input);
+    } else {
+        // Fallback for GLPI 10.x where it might still pass the input array
+        return plugin_memarkdown_convert_content($item);
+    }
+    return $item;
 }
 
 /**
@@ -195,6 +209,11 @@ function plugin_memarkdown_pre_item_update($input)
  */
 function plugin_memarkdown_convert_content($input)
 {
+    // Ensure we have a valid array input
+    if (!is_array($input)) {
+        return $input;
+    }
+    
     // Only process if explicitly in markdown mode AND content needs conversion
     if (isset($input['_markdown_mode']) && $input['_markdown_mode'] == 1) {
         if (isset($input['answer']) && !empty($input['answer'])) {
