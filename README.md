@@ -4,6 +4,14 @@ A plugin for GLPI that adds comprehensive Markdown support to the Knowledge Base
 
 **✅ Compatible with GLPI 10.x and 11.x**
 
+## Installation
+1. Download the repo
+2. Make sure the folder is names memarkdown
+3. Copy to your plugin folder
+4. sudo chown -R www-data:www-data ./memarkdown
+5. Install and toggle on the plugin
+
+
 ## Compatibility
 
 - **GLPI Version**: 10.0.0 - 11.x
