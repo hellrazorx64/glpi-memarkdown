@@ -1,0 +1,560 @@
+/**
+ * ---------------------------------------------------------------------
+ *
+ * GLPI Markdown Plugin - Styles
+ * Compatible with GLPI 10.x and 11.x
+ *
+ * @copyright 2024
+ * @license   https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * ---------------------------------------------------------------------
+ */
+
+/* GLPI 11 compatibility - Bootstrap 5+ classes */
+.markdown-toggle-container {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: var(--bs-light, #f8f9fa);
+    border: 1px solid var(--bs-border-color, #dee2e6);
+    border-radius: var(--bs-border-radius, 4px);
+}
+
+/* GLPI 10.x fallback for CSS variables */
+:root {
+    --bs-light: #f8f9fa;
+    --bs-border-color: #dee2e6;
+    --bs-border-radius: 4px;
+    --bs-primary: #007bff;
+    --bs-dark: #2b3b4e;
+    --bs-body-color: #495057;
+    --bs-body-bg: #ffffff;
+}
+
+/* Enhanced dark theme support for GLPI 11 */
+[data-bs-theme="dark"] .markdown-toggle-container,
+html[data-glpi-theme="dark"] .markdown-toggle-container {
+    background-color: var(--bs-dark, #2b3b4e);
+    border-color: var(--bs-secondary, #495057);
+    color: var(--bs-light, #ffffff);
+}
+
+/* GLPI 11 form field integration */
+.form-field .markdown-toggle-container,
+.field-container .markdown-toggle-container {
+    margin-top: 0;
+    margin-bottom: 15px;
+    border-radius: var(--bs-border-radius-sm, 3px);
+}
+
+/* Rich text container compatibility for GLPI 11 */
+.rich-text-container .markdown-toggle-container {
+    margin-bottom: 10px;
+    background-color: var(--bs-body-bg, #ffffff);
+    border: 1px solid var(--bs-border-color-translucent, rgba(0,0,0,.175));
+}
+
+/* Markdown switch styling - Bootstrap 5 compatible */
+.markdown-switch {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.markdown-switch .form-check-input {
+    margin-right: 8px;
+    margin-top: 0; /* GLPI 11 adjustment */
+}
+
+.markdown-switch label {
+    margin-bottom: 0;
+    font-weight: 500;
+    color: var(--bs-body-color, #495057);
+    cursor: pointer;
+    user-select: none; /* GLPI 11 improvement */
+}
+
+.markdown-switch label i {
+    margin-right: 5px;
+    color: var(--bs-primary, #007bff);
+}
+
+/* Enhanced dark theme support */
+[data-bs-theme="dark"] .markdown-switch label,
+html[data-glpi-theme="dark"] .markdown-switch label {
+    color: var(--bs-light, #ffffff);
+}
+
+/* Markdown textarea styling - enhanced for GLPI 11 */
+.markdown-textarea {
+    background-color: var(--bs-body-bg, #ffffff);
+    border: 1px solid var(--bs-border-color, #ced4da);
+    border-radius: var(--bs-border-radius, 4px);
+    padding: 12px;
+    resize: vertical;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--bs-body-color, #495057);
+}
+
+.markdown-textarea:focus {
+    border-color: var(--bs-primary, #80bdff);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb, 0, 123, 255), 0.25);
+}
+
+/* Dark theme for markdown textarea */
+[data-bs-theme="dark"] .markdown-textarea,
+html[data-glpi-theme="dark"] .markdown-textarea {
+    background-color: var(--bs-dark, #2b3b4e);
+    border-color: var(--bs-secondary, #495057);
+    color: var(--bs-light, #ffffff);
+}
+
+[data-bs-theme="dark"] .markdown-textarea:focus,
+html[data-glpi-theme="dark"] .markdown-textarea:focus {
+    border-color: var(--bs-primary, #80bdff);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb, 0, 123, 255), 0.25);
+}
+
+/* GLPI 11 form integration improvements */
+.form-field .markdown-textarea,
+.field-container .markdown-textarea {
+    width: 100%;
+    min-height: 200px;
+}
+
+/* Responsive improvements for GLPI 11 */
+@media (max-width: 768px) {
+    .markdown-toggle-container {
+        padding: 8px;
+        margin-bottom: 8px;
+        border-radius: var(--bs-border-radius-sm, 3px);
+    }
+    
+    .markdown-help {
+        font-size: 11px;
+        padding: 6px;
+    }
+    
+    .markdown-textarea {
+        padding: 10px;
+        font-size: 14px;
+        min-height: 150px;
+    }
+    
+    .markdown-switch label {
+        font-size: 14px;
+    }
+}
+
+/* GLPI 11 Bootstrap 5 compatibility for buttons */
+.btn-markdown {
+    --bs-btn-color: var(--bs-primary);
+    --bs-btn-bg: transparent;
+    --bs-btn-border-color: var(--bs-primary);
+    --bs-btn-hover-color: var(--bs-light);
+    --bs-btn-hover-bg: var(--bs-primary);
+    --bs-btn-hover-border-color: var(--bs-primary);
+}
+
+/* TinyMCE container adjustments for GLPI 11 */
+.tox-tinymce.markdown-hidden {
+    display: none !important;
+}
+
+/* GLPI 11 modal and dialog compatibility */
+.modal .markdown-toggle-container,
+.ui-dialog .markdown-toggle-container {
+    margin-bottom: 15px;
+}
+
+/* Enhanced loading states for GLPI 11 */
+.markdown-toggle-container.loading {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.markdown-toggle-container.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid var(--bs-primary, #007bff);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* GLPI 11 table styling improvements */
+.markdown-content table {
+    --bs-table-bg: transparent;
+    --bs-table-striped-bg: rgba(var(--bs-emphasis-color-rgb, 0, 0, 0), 0.05);
+    --bs-table-hover-bg: rgba(var(--bs-emphasis-color-rgb, 0, 0, 0), 0.075);
+    border-collapse: collapse;
+}
+
+/* Print styles for GLPI 11 */
+@media print {
+    .markdown-toggle-container {
+        display: none !important;
+    }
+    
+    .markdown-textarea {
+        border: 1px solid #000;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* Markdown help text */
+.markdown-help {
+    margin-top: 8px;
+    padding: 8px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.markdown-help strong {
+    color: #495057;
+}
+
+/* Dark theme for help text */
+html[data-glpi-theme="dark"] .markdown-help {
+    background-color: #495057;
+    color: #ffffff;
+}
+
+html[data-glpi-theme="dark"] .markdown-help strong {
+    color: #ffffff;
+}
+
+/* Animation for smooth transitions */
+.markdown-toggle-container,
+.markdown-textarea,
+.tox-tinymce {
+    transition: all 0.3s ease;
+}
+
+/* Focus indicators for accessibility */
+.markdown-switch .form-check-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Custom checkbox styling for better visual feedback */
+.markdown-switch .form-check-input:checked {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Hover effects */
+.markdown-switch label:hover {
+    color: #007bff;
+}
+
+html[data-glpi-theme="dark"] .markdown-switch label:hover {
+    color: #80bdff;
+}
+
+/* Error state */
+.markdown-textarea.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+/* Success state */
+.markdown-textarea.success {
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Toolbar compatibility */
+.markdown-toggle-container + .tox-tinymce {
+    margin-top: 0;
+}
+
+/* Obsidian-style features styling */
+.wikilink {
+    color: #7c3aed;
+    text-decoration: none;
+    border-bottom: 1px dashed #7c3aed;
+}
+
+.wikilink:hover {
+    color: #5b21b6;
+    border-bottom-style: solid;
+}
+
+.obsidian-tag {
+    background-color: #3b82f6;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    text-decoration: none;
+    display: inline-block;
+    margin: 2px;
+}
+
+.obsidian-tag:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+mark {
+    background-color: #fbbf24;
+    color: #1f2937;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+.math-block {
+    background-color: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    padding: 12px;
+    margin: 8px 0;
+    font-family: 'KaTeX_Main', 'Times New Roman', serif;
+    text-align: center;
+}
+
+.math-inline {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 2px;
+    padding: 1px 4px;
+    font-family: 'KaTeX_Main', 'Times New Roman', serif;
+}
+
+.callout {
+    border-left: 4px solid #3b82f6;
+    background-color: #eff6ff;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 0 4px 4px 0;
+}
+
+.callout-title {
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #1e40af;
+}
+
+.callout-content {
+    margin-bottom: 0;
+}
+
+.callout-note {
+    border-left-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.callout-warning {
+    border-left-color: #f59e0b;
+    background-color: #fffbeb;
+}
+
+.callout-warning .callout-title {
+    color: #d97706;
+}
+
+.callout-danger {
+    border-left-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.callout-danger .callout-title {
+    color: #dc2626;
+}
+
+.callout-info {
+    border-left-color: #06b6d4;
+    background-color: #ecfeff;
+}
+
+.callout-info .callout-title {
+    color: #0891b2;
+}
+
+.callout-success {
+    border-left-color: #10b981;
+    background-color: #ecfdf5;
+}
+
+.callout-success .callout-title {
+    color: #059669;
+}
+
+.footnote-ref {
+    font-size: 0.8em;
+}
+
+.footnote-ref a {
+    color: #3b82f6;
+    text-decoration: none;
+}
+
+.footnote-ref a:hover {
+    text-decoration: underline;
+}
+
+.embed-file {
+    background-color: #f3f4f6;
+    border: 1px dashed #9ca3af;
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin: 8px 0;
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Dark theme for Obsidian features */
+html[data-glpi-theme="dark"] .wikilink {
+    color: #a78bfa;
+    border-bottom-color: #a78bfa;
+}
+
+html[data-glpi-theme="dark"] .wikilink:hover {
+    color: #c4b5fd;
+}
+
+html[data-glpi-theme="dark"] .obsidian-tag {
+    background-color: #3730a3;
+}
+
+html[data-glpi-theme="dark"] .obsidian-tag:hover {
+    background-color: #4338ca;
+}
+
+html[data-glpi-theme="dark"] mark {
+    background-color: #f59e0b;
+    color: #111827;
+}
+
+html[data-glpi-theme="dark"] .math-block {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+html[data-glpi-theme="dark"] .math-inline {
+    background-color: #374151;
+    border-color: #4b5563;
+    color: #ffffff;
+}
+
+html[data-glpi-theme="dark"] .callout {
+    background-color: #374151;
+}
+
+html[data-glpi-theme="dark"] .callout-title {
+    color: #60a5fa;
+}
+
+html[data-glpi-theme="dark"] .embed-file {
+    background-color: #374151;
+    border-color: #6b7280;
+    color: #9ca3af;
+}
+
+/* Table styling for markdown tables */
+.markdown-textarea + .tox-tinymce table.table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 12px 0;
+}
+
+.markdown-textarea + .tox-tinymce table.table th,
+.markdown-textarea + .tox-tinymce table.table td {
+    border: 1px solid #d1d5db;
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.markdown-textarea + .tox-tinymce table.table th {
+    background-color: #f9fafb;
+    font-weight: bold;
+}
+
+.markdown-textarea + .tox-tinymce table.table-striped tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+
+/* Dark theme for tables */
+html[data-glpi-theme="dark"] .markdown-textarea + .tox-tinymce table.table th,
+html[data-glpi-theme="dark"] .markdown-textarea + .tox-tinymce table.table td {
+    border-color: #4b5563;
+}
+
+html[data-glpi-theme="dark"] .markdown-textarea + .tox-tinymce table.table th {
+    background-color: #374151;
+}
+
+html[data-glpi-theme="dark"] .markdown-textarea + .tox-tinymce table.table-striped tbody tr:nth-child(even) {
+    background-color: #374151;
+}
+
+/* Print styles */
+@media print {
+    .markdown-toggle-container {
+        display: none !important;
+    }
+    
+    .obsidian-tag {
+        background-color: #000 !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact;
+    }
+    
+    .callout {
+        border-left: 4px solid #000 !important;
+        background-color: #f5f5f5 !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+
+/* Simple, clean code blocks */
+pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 15px 0;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+pre code {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: #2d3748;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+}
+
+/* Dark theme support */
+html[data-glpi-theme="dark"] pre {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+html[data-glpi-theme="dark"] pre code {
+    color: #e2e8f0;
+} 

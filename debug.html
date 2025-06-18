@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MEMarkdown Plugin Debug Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        .warning { color: orange; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; }
+        .tox-tinymce { border: 1px solid #ccc; margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <h1>MEMarkdown Plugin Debug Test</h1>
+    
+    <div class="debug-section">
+        <h2>Test Environment</h2>
+        <div id="environment-info"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Test Textarea (GLPI Style)</h2>
+        <form>
+            <textarea name="answer" id="answer" placeholder="This simulates the GLPI knowledge base answer field..."></textarea>
+        </form>
+    </div>
+    
+    <div class="debug-section">
+        <h2>JavaScript Detection Test</h2>
+        <div id="js-test-results"></div>
+        <button onclick="runDetectionTest()">Run Detection Test</button>
+    </div>
+    
+    <div class="debug-section">
+        <h2>Console Logs</h2>
+        <div id="console-logs" style="background: #f0f0f0; padding: 10px; height: 200px; overflow-y: auto; font-family: monospace;"></div>
+    </div>
+
+    <script>
+        // Capture console logs
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        function addToConsoleDiv(message, type = 'log') {
+            const consoleDiv = document.getElementById('console-logs');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logEntry.className = type;
+            consoleDiv.appendChild(logEntry);
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsoleDiv(args.join(' '), 'log');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsoleDiv(args.join(' '), 'warning');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsoleDiv(args.join(' '), 'error');
+        };
+        
+        // Environment detection
+        function updateEnvironmentInfo() {
+            const envDiv = document.getElementById('environment-info');
+            const info = [];
+            
+            info.push(`<strong>User Agent:</strong> ${navigator.userAgent}`);
+            info.push(`<strong>TinyMCE Available:</strong> ${typeof tinymce !== 'undefined' ? 'YES' : 'NO'}`);
+            
+            if (typeof tinymce !== 'undefined') {
+                info.push(`<strong>TinyMCE Version:</strong> ${tinymce.majorVersion}.${tinymce.minorVersion}`);
+                info.push(`<strong>TinyMCE Editors:</strong> ${tinymce.editors ? tinymce.editors.length : 0}`);
+            }
+            
+            envDiv.innerHTML = info.join('<br>');
+        }
+        
+        // Detection test
+        function runDetectionTest() {
+            const resultsDiv = document.getElementById('js-test-results');
+            const results = [];
+            
+            // Test textarea detection
+            const selectors = [
+                'textarea[name="answer"]',
+                'textarea[data-itemtype="answer"]', 
+                '.rich-text-container textarea',
+                '#answer',
+                'textarea[id*="answer"]',
+                '.form-field textarea[name="answer"]',
+                'textarea.form-control[name="answer"]'
+            ];
+            
+            results.push('<h3>Textarea Detection Test:</h3>');
+            let foundAny = false;
+            
+            selectors.forEach(selector => {
+                const element = document.querySelector(selector);
+                if (element) {
+                    results.push(`<div class="success">✓ Found with: ${selector}</div>`);
+                    foundAny = true;
+                } else {
+                    results.push(`<div class="error">✗ Not found: ${selector}</div>`);
+                }
+            });
+            
+            if (!foundAny) {
+                results.push('<div class="error"><strong>ERROR: No textarea found with any selector!</strong></div>');
+            }
+            
+            // Test TinyMCE detection
+            results.push('<h3>TinyMCE Detection Test:</h3>');
+            if (typeof tinymce === 'undefined') {
+                results.push('<div class="error">✗ TinyMCE not loaded</div>');
+            } else {
+                results.push('<div class="success">✓ TinyMCE is loaded</div>');
+                
+                if (tinymce.editors && tinymce.editors.length > 0) {
+                    results.push(`<div class="success">✓ Found ${tinymce.editors.length} TinyMCE editor(s)</div>`);
+                    tinymce.editors.forEach((editor, index) => {
+                        results.push(`<div>Editor ${index + 1}: ID=${editor.id}, TargetElement=${editor.targetElm ? editor.targetElm.tagName : 'none'}</div>`);
+                    });
+                } else {
+                    results.push('<div class="warning">⚠ TinyMCE loaded but no editors found</div>');
+                }
+            }
+            
+            // Test MEMarkdown functions
+            results.push('<h3>MEMarkdown Functions Test:</h3>');
+            if (typeof initMarkdownToggle === 'function') {
+                results.push('<div class="success">✓ initMarkdownToggle function available</div>');
+            } else {
+                results.push('<div class="error">✗ initMarkdownToggle function NOT available</div>');
+            }
+            
+            resultsDiv.innerHTML = results.join('');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Debug page loaded');
+            updateEnvironmentInfo();
+            
+            // Try to load TinyMCE if available
+            if (typeof tinymce === 'undefined') {
+                console.log('Attempting to load TinyMCE...');
+                // This would normally be loaded by GLPI
+                console.log('TinyMCE should be loaded by GLPI in the actual environment');
+            }
+            
+            // Simulate what our plugin script does
+            setTimeout(() => {
+                console.log('Running simulated plugin initialization...');
+                runDetectionTest();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 

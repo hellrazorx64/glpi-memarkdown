@@ -1,0 +1,83 @@
+# GLPI MEMarkdown Plugin
+# English (United Kingdom) translation
+msgid ""
+msgstr ""
+"Project-Id-Version: GLPI MEMarkdown Plugin 1.1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 12:00+0000\n"
+"PO-Revision-Date: 2024-01-01 12:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: English\n"
+"Language: en_GB\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Markdown Support"
+msgstr "Markdown Support"
+
+msgid "Markdown Mode"
+msgstr "Markdown Mode"
+
+msgid "Switch to Markdown mode to write in plain text with Markdown syntax"
+msgstr "Switch to Markdown mode to write in plain text with Markdown syntax"
+
+msgid "Markdown Quick Reference"
+msgstr "Markdown Quick Reference"
+
+msgid "Bold text"
+msgstr "Bold text"
+
+msgid "Italic text"
+msgstr "Italic text"
+
+msgid "Heading"
+msgstr "Heading"
+
+msgid "Subheading"
+msgstr "Subheading"
+
+msgid "Link"
+msgstr "Link"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "Code"
+msgstr "Code"
+
+msgid "Code block"
+msgstr "Code block"
+
+msgid "List item"
+msgstr "List item"
+
+msgid "Numbered list"
+msgstr "Numbered list"
+
+msgid "Blockquote"
+msgstr "Blockquote"
+
+msgid "Wikilink (Obsidian)"
+msgstr "Wikilink (Obsidian)"
+
+msgid "Tag (Obsidian)"
+msgstr "Tag (Obsidian)"
+
+msgid "Highlight (Obsidian)"
+msgstr "Highlight (Obsidian)"
+
+msgid "Strikethrough"
+msgstr "Strikethrough"
+
+msgid "Math formula"
+msgstr "Math formula"
+
+msgid "Installed / not configured"
+msgstr "Installed / not configured"
+
+msgid "Plugin successfully activated"
+msgstr "Plugin successfully activated"
+
+msgid "Plugin successfully deactivated"
+msgstr "Plugin successfully deactivated" 
