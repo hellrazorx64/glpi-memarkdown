@@ -13,6 +13,9 @@
 let markdownEnabled = false;
 let tinymceEditor = null;
 
+// Store base64 images during conversion
+const base64ImageMap = new Map();
+
 /**
  * Initialize the markdown toggle functionality
  */
@@ -249,8 +252,6 @@ function toggleMarkdownMode(enabled, helpDiv) {
  * Create simple markdown textarea
  */
 function createMarkdownTextarea(content) {
-    const editorContainer = tinymceEditor.getContainer();
-    
     const textarea = document.createElement('textarea');
     textarea.id = 'markdownTextarea';
     textarea.className = 'form-control markdown-textarea';
@@ -261,6 +262,7 @@ function createMarkdownTextarea(content) {
     textarea.style.fontSize = '14px';
     textarea.style.lineHeight = '1.5';
     
+    const editorContainer = tinymceEditor.getContainer();
     editorContainer.parentNode.insertBefore(textarea, editorContainer.nextSibling);
     
     // Simple sync - only update TinyMCE when typing
@@ -268,312 +270,130 @@ function createMarkdownTextarea(content) {
         const htmlContent = markdownToHtml(this.value);
         tinymceEditor.setContent(htmlContent);
     });
+
+    // Focus and maintain scroll position
+    textarea.focus();
 }
 
-/**
- * Simple HTML to Markdown conversion
- */
-function htmlToMarkdown(html) {
-    let markdown = html;
-    
-    // IMPROVED: Better detection of markdown content
-    const markdownLinkPattern = /\[([^\]]+)\]\(([^)]+)\)/g;
-    const hasMarkdownLinks = markdownLinkPattern.test(markdown);
-    const hasHtmlLinks = markdown.includes('<a ') || markdown.includes('<a>');
-    
-    // If content already looks like markdown and has no HTML links, just clean it up
-    if (hasMarkdownLinks && !hasHtmlLinks) {
-        // Extract text content from any paragraph tags and clean up
-        markdown = markdown.replace(/<p[^>]*>/gi, '');
-        markdown = markdown.replace(/<\/p>/gi, '\n');
-        markdown = markdown.replace(/<br[^>]*>/gi, '\n');
-        markdown = markdown.replace(/<[^>]*>/g, ''); // Remove any other HTML tags
-        
-        // Clean up HTML entities
-        markdown = markdown.replace(/&nbsp;/g, ' ');
-        markdown = markdown.replace(/&amp;/g, '&');
-        markdown = markdown.replace(/&lt;/g, '<');
-        markdown = markdown.replace(/&gt;/g, '>');
-        markdown = markdown.replace(/&quot;/g, '"');
-        markdown = markdown.replace(/&#39;/g, "'");
-        
-        // Clean up excessive line breaks but preserve structure
-        markdown = markdown.replace(/\n{3,}/g, '\n\n');
-        markdown = markdown.replace(/^\s+|\s+$/g, '');
-        
-        return markdown;
-    }
-    
-    // Original conversion logic for actual HTML content
-    // Handle code blocks FIRST (before other code processing)
-    markdown = markdown.replace(/<pre><code(?:\s+class="language-(\w+)")?>([^<]*?)<\/code><\/pre>/gis, function(match, lang, code) {
-        const language = lang || '';
-        const cleanCode = code.replace(/<br\s*\/?>/g, '\n').trim();
-        return '```' + language + '\n' + cleanCode + '\n```';
-    });
-    
-    // Handle list items properly by converting HTML lists to markdown
-    markdown = convertHtmlListsToMarkdown(markdown);
-    
-    // Headers
-    markdown = markdown.replace(/<h([1-6])[^>]*>(.*?)<\/h[1-6]>/gi, function(match, level, text) {
-        const cleanText = text.replace(/<[^>]*>/g, '').trim();
-        return '#'.repeat(parseInt(level)) + ' ' + cleanText + '\n\n';
-    });
-    
-    // Bold and italic
-    markdown = markdown.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
-    markdown = markdown.replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**');
-    markdown = markdown.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
-    markdown = markdown.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
-    
-    // Inline code (after code blocks)
-    markdown = markdown.replace(/<code[^>]*>(.*?)<\/code>/gi, '`$1`');
-    
-    // Handle linked images BEFORE regular links and images
-    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>\s*<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>\s*<\/a>/gi, function(match, linkUrl, imgSrc, imgAlt) {
-        return '\n\n[![' + imgAlt + '](' + imgSrc + ')](' + linkUrl + ')\n\n';
-    });
-    
-    // Regular images (add spacing)
-    markdown = markdown.replace(/<img[^>]*src="([^"]*)"[^>]*alt="([^"]*)"[^>]*>/gi, function(match, src, alt) {
-        return '\n\n![' + alt + '](' + src + ')\n\n';
-    });
-    
-    // IMPROVED: Regular links (after linked images) - Better handling for complex link content
-    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>((?:(?!<\/a>).)*)<\/a>/gi, function(match, href, linkText) {
-        // Clean any remaining HTML tags from link text
-        const cleanLinkText = linkText.replace(/<[^>]*>/g, '').trim();
-        // Decode HTML entities in the link text
-        const decodedLinkText = cleanLinkText
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'");
-        return '[' + decodedLinkText + '](' + href + ')';
-    });
-    
-    // Blockquotes
-    markdown = markdown.replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, '> $1');
-    
-    // IMPROVED: Better line break and paragraph handling
-    // Convert paragraph breaks to double newlines FIRST
-    markdown = markdown.replace(/<\/p>\s*<p[^>]*>/gi, '\n\n');
-    markdown = markdown.replace(/<p[^>]*>/gi, '');
-    markdown = markdown.replace(/<\/p>/gi, '\n');
-    
-    // Convert br tags to single newlines AFTER paragraph handling
-    markdown = markdown.replace(/<br[^>]*>/gi, '\n');
-    
-    // Remove remaining HTML tags
-    markdown = markdown.replace(/<[^>]*>/g, '');
-    
-    // Decode HTML entities
-    markdown = markdown.replace(/&nbsp;/g, ' ');
-    markdown = markdown.replace(/&amp;/g, '&');
-    markdown = markdown.replace(/&lt;/g, '<');
-    markdown = markdown.replace(/&gt;/g, '>');
-    markdown = markdown.replace(/&quot;/g, '"');
-    markdown = markdown.replace(/&#39;/g, "'");
-    
-    // IMPROVED: Clean up spacing while preserving intentional line breaks
-    // Remove excessive newlines but keep single and double newlines
-    markdown = markdown.replace(/\n{4,}/g, '\n\n');
-    
-    // Ensure single newlines between consecutive links are preserved
-    markdown = markdown.replace(/(\]\([^)]+\))(\[)/g, '$1\n$2');
-    
-    // Clean up any trailing/leading whitespace but preserve internal structure
-    markdown = markdown.replace(/^\s+|\s+$/g, '');
-    
-    return markdown;
-}
-
-/**
- * Convert HTML lists to markdown format
- */
-function convertHtmlListsToMarkdown(html) {
-    // Handle unordered lists
-    html = html.replace(/<ul[^>]*>(.*?)<\/ul>/gis, function(match, content) {
-        const items = content.match(/<li[^>]*>(.*?)<\/li>/gis);
-        if (items) {
-            return items.map(item => {
-                const text = item.replace(/<li[^>]*>(.*?)<\/li>/is, '$1').replace(/<[^>]*>/g, '').trim();
-                return '- ' + text;
-            }).join('\n') + '\n\n';
-        }
-        return content;
-    });
-    
-    // Handle ordered lists
-    html = html.replace(/<ol[^>]*>(.*?)<\/ol>/gis, function(match, content) {
-        const items = content.match(/<li[^>]*>(.*?)<\/li>/gis);
-        if (items) {
-            return items.map((item, index) => {
-                const text = item.replace(/<li[^>]*>(.*?)<\/li>/is, '$1').replace(/<[^>]*>/g, '').trim();
-                return (index + 1) + '. ' + text;
-            }).join('\n') + '\n\n';
-        }
-        return content;
-    });
-    
-    return html;
-}
-
-/**
- * Simple Markdown to HTML conversion
- */
 function markdownToHtml(markdown) {
     let html = markdown;
-    
-    // IMPROVED: Handle links FIRST before other processing to avoid conflicts
-    // This ensures that markdown links are converted to HTML before any other processing
-    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(match, linkText, url) {
-        // Clean the URL and link text
-        const cleanUrl = url.trim();
-        const cleanLinkText = linkText.trim();
-        return `<a href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanLinkText}</a>`;
-    });
-    
-    // IMPROVED: Handle images AFTER links to avoid conflicts
-    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, function(match, alt, src) {
-        const cleanSrc = src.trim();
-        const cleanAlt = alt.trim();
-        return `<img src="${cleanSrc}" alt="${cleanAlt}" class="img-fluid" />`;
-    });
-    
-    // Code blocks first (but after links/images)
-    html = html.replace(/```(\w+)?\n([\s\S]*?)\n```/g, function(match, lang, code) {
-        const language = lang || 'text';
-        return `<pre><code class="language-${language}">${code.trim()}</code></pre>`;
-    });
-        
-    // Headers
+
+    // Headers (largest to smallest)
     html = html.replace(/^######\s+(.+)$/gm, '<h6>$1</h6>');
     html = html.replace(/^#####\s+(.+)$/gm, '<h5>$1</h5>');
     html = html.replace(/^####\s+(.+)$/gm, '<h4>$1</h4>');
     html = html.replace(/^###\s+(.+)$/gm, '<h3>$1</h3>');
     html = html.replace(/^##\s+(.+)$/gm, '<h2>$1</h2>');
     html = html.replace(/^#\s+(.+)$/gm, '<h1>$1</h1>');
-        
+
+    // Lists - handle them before paragraphs
+    html = html.replace(/^\s*[-*+]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/^\s*(\d+)\.\s+(.+)$/gm, '<li>$2</li>');
+    html = html.replace(/(<li>[^<]+<\/li>\s*)+/g, '<ul>$&</ul>');
+
+    // Code blocks and inline code
+    html = html.replace(/```([^`]+)```/g, '<pre><code>$1</code></pre>');
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
     // Bold and italic
-    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-        
-    // Inline code
-    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
-    
-    // IMPROVED: Better line break handling
-    // Split into lines first to handle them individually
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+    // Images - Handle them before links to avoid conflicts
+    html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (match, alt, src) => {
+        const style = src.includes('document.send.php') ? '' : ' style="max-width:100%;"';
+        return `<img src="${src}" alt="${alt}"${style}>`;
+    });
+
+    // Links
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+
+    // Process lines - wrap each non-empty line in a paragraph with reduced spacing
     const lines = html.split('\n');
     const processedLines = [];
     
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
         
-        // Skip empty lines (they'll become paragraph breaks)
-        if (line === '') {
-            processedLines.push('');
+        if (!line) {
+            // Empty line - add a paragraph break
+            processedLines.push('<p>&nbsp;</p>');
             continue;
         }
         
-        // Check if this line contains only a link (or link with surrounding text)
-        const linkOnlyPattern = /^<a href="[^"]*"[^>]*>[^<]*<\/a>$/;
-        const linkWithTextPattern = /^.*<a href="[^"]*"[^>]*>[^<]*<\/a>.*$/;
-        
-        if (linkOnlyPattern.test(line) || linkWithTextPattern.test(line)) {
-            // Wrap standalone links or lines with links in paragraphs
-            processedLines.push(`<p>${line}</p>`);
-        } else {
-            // Regular line
+        // Block elements - don't wrap in paragraphs
+        if (line.match(/^<(h[1-6]|ul|ol|li|pre|img|div|blockquote)/)) {
             processedLines.push(line);
+        } else {
+            // Inline content - wrap in paragraph with reduced margin
+            processedLines.push(`<p style="margin: 0.2em 0;">${line}</p>`);
         }
     }
     
-    // Join back with no separators since we're adding <p> tags
-    html = processedLines.join('');
-    
-    // Handle lists properly
-    html = convertMarkdownLists(html);
-    
-    // Clean up any remaining empty paragraphs
-    html = html.replace(/<p><\/p>/g, '');
-    
-    // For content that doesn't have explicit paragraph tags, wrap it
-    if (!html.includes('<p>') && !html.includes('<h') && !html.includes('<pre>') && !html.includes('<ul>') && !html.includes('<ol>')) {
-        html = '<p>' + html + '</p>';
-    }
-        
-    return html;
+    return processedLines.join('');
 }
 
-/**
- * Convert markdown lists to proper HTML lists
- */
-function convertMarkdownLists(html) {
-    const lines = html.split('<br />');
-    const result = [];
-    let inUnorderedList = false;
-    let inOrderedList = false;
+function htmlToMarkdown(html) {
+    let markdown = html;
+
+    // Handle linked images first (images wrapped in anchor tags)
+    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>\s*<img[^>]*src="([^"]*)"[^>]*(?:alt="([^"]*)")?[^>]*>\s*<\/a>/g, (match, href, src, alt) => {
+        const altText = alt || src.split('/').pop().split('?')[0] || 'image';
+        return `![${altText}](${src})`;
+    });
+
+    // Headers
+    markdown = markdown.replace(/<h6[^>]*>(.+?)<\/h6>/g, '###### $1\n');
+    markdown = markdown.replace(/<h5[^>]*>(.+?)<\/h5>/g, '##### $1\n');
+    markdown = markdown.replace(/<h4[^>]*>(.+?)<\/h4>/g, '#### $1\n');
+    markdown = markdown.replace(/<h3[^>]*>(.+?)<\/h3>/g, '### $1\n');
+    markdown = markdown.replace(/<h2[^>]*>(.+?)<\/h2>/g, '## $1\n');
+    markdown = markdown.replace(/<h1[^>]*>(.+?)<\/h1>/g, '# $1\n');
+
+    // Lists - handle nested content properly
+    markdown = markdown.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/g, (match, content) => {
+        return content.replace(/<li[^>]*>([\s\S]*?)<\/li>/g, (liMatch, liContent) => {
+            const cleanContent = liContent.replace(/<[^>]*>/g, '').trim();
+            return `- ${cleanContent}\n`;
+        });
+    });
+    markdown = markdown.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/g, (match, content) => {
+        let counter = 1;
+        return content.replace(/<li[^>]*>([\s\S]*?)<\/li>/g, (liMatch, liContent) => {
+            const cleanContent = liContent.replace(/<[^>]*>/g, '').trim();
+            return `${counter++}. ${cleanContent}\n`;
+        });
+    });
+
+    // Code blocks and inline code
+    markdown = markdown.replace(/<pre><code[^>]*>([\s\S]+?)<\/code><\/pre>/g, '```\n$1\n```\n');
+    markdown = markdown.replace(/<code[^>]*>([^<]+)<\/code>/g, '`$1`');
+
+    // Bold and italic
+    markdown = markdown.replace(/<strong[^>]*>([^<]+)<\/strong>/g, '**$1**');
+    markdown = markdown.replace(/<em[^>]*>([^<]+)<\/em>/g, '*$1*');
+
+    // Standalone images (not wrapped in links)
+    markdown = markdown.replace(/<img[^>]*src="([^"]*)"[^>]*(?:alt="([^"]*)")?[^>]*>/g, (match, src, alt) => {
+        const altText = alt || src.split('/').pop().split('?')[0] || 'image';
+        return `![${altText}](${src})`;
+    });
+
+    // Regular links (after handling linked images)
+    markdown = markdown.replace(/<a[^>]*href="([^"]*)"[^>]*>([^<]+)<\/a>/g, '[$2]($1)');
+
+    // Paragraphs - convert to single newlines, not double
+    markdown = markdown.replace(/<p[^>]*>([\s\S]*?)<\/p>/g, (match, content) => {
+        const cleanContent = content.replace(/<[^>]*>/g, '').trim();
+        return cleanContent ? `${cleanContent}\n` : '';
+    });
     
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim();
-        
-        // Check for unordered list items (- item or * item)
-        const unorderedMatch = line.match(/^[-*]\s+(.+)$/);
-        if (unorderedMatch) {
-            if (!inUnorderedList) {
-                if (inOrderedList) {
-                    result.push('</ol>');
-                    inOrderedList = false;
-                }
-                result.push('<ul>');
-                inUnorderedList = true;
-            }
-            result.push(`<li>${unorderedMatch[1]}</li>`);
-            continue;
-        }
-        
-        // Check for ordered list items (1. item, 2. item, etc.)
-        const orderedMatch = line.match(/^\d+\.\s+(.+)$/);
-        if (orderedMatch) {
-            if (!inOrderedList) {
-                if (inUnorderedList) {
-                    result.push('</ul>');
-                    inUnorderedList = false;
-                }
-                result.push('<ol>');
-                inOrderedList = true;
-            }
-            result.push(`<li>${orderedMatch[1]}</li>`);
-            continue;
-        }
-        
-        // Not a list item - close any open lists
-        if (inUnorderedList) {
-            result.push('</ul>');
-            inUnorderedList = false;
-        }
-        if (inOrderedList) {
-            result.push('</ol>');
-            inOrderedList = false;
-        }
-        
-        // Add the regular line
-        if (line) {
-            result.push(line);
-        }
-    }
-    
-    // Close any remaining open lists
-    if (inUnorderedList) {
-        result.push('</ul>');
-    }
-    if (inOrderedList) {
-        result.push('</ol>');
-    }
-    
-    return result.join('');
+    // Handle line breaks
+    markdown = markdown.replace(/<br[^>]*>/g, '\n');
+
+    // Clean up: remove excessive newlines but preserve intentional spacing
+    markdown = markdown.replace(/\n{3,}/g, '\n\n'); // Max 2 newlines in a row
+    markdown = markdown.trim();
+
+    return markdown;
 }
